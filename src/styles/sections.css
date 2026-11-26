@@ -541,3 +541,47 @@ html.motion .cf-globe .og-pin { animation: pinDrop 0.9s var(--ease-out) 0.7s bot
 .nf { min-height: 100svh; display: grid; align-content: center; text-align: left; position: relative; overflow: hidden; }
 .nf-code { font-size: clamp(7rem, 3rem + 20vw, 20rem); font-weight: 700; font-stretch: 125%; line-height: 0.8; letter-spacing: -0.05em; color: var(--foil); }
 .nf .mark { position: absolute; right: 8vw; top: 22vh; --r: 12deg; --ink-c: var(--red); color: var(--red); width: 13rem; height: 9rem; }
+
+/* ================= SHORT SCREENS =================
+   Laptops are as wide as monitors but much shorter, and Windows display scaling (125–150%)
+   leaves roughly 1280×600 to 1536×730 CSS px. Type above is sized by width, so on these
+   screens it's also capped by height, keeping each first screen whole. Tall monitors are untouched. */
+@media (min-width: 821px) and (max-height: 820px) {
+  .display { font-size: min(var(--step-6), 10.5svh); }
+  h2 { font-size: min(var(--step-5), 8.5svh); }
+  section.paper, section.navy, section.space { padding-block: min(var(--s-3xl), 13svh); }
+  .sec-head { margin-bottom: min(var(--s-2xl), 8svh); }
+
+  /* Hero: headline, intro, buttons and status all on the first screen */
+  .hero-copy { padding: 5.25rem 0 4rem; }
+  .hero-eyebrow { margin-bottom: 0.6rem; }
+  .count { font-size: min(clamp(6.5rem, 4rem + 13vw, 15.5rem), 25svh); }
+  .of { font-size: min(var(--step-4), 5.6svh); margin-top: 0.7rem; }
+  .hero-lede { margin-top: 0.9rem; font-size: var(--step-0); max-width: 34rem; }
+  .hero-actions { margin: 1rem 0 0.9rem; }
+  .scroll-cue { display: none; }
+  .mrz { bottom: 0.6rem; font-size: 0.72rem; }
+
+  /* Globe: heading block stays clear of the controls */
+  .globe-head { top: var(--s-m); }
+  .globe-head h2 { font-size: min(var(--step-5), 6.6svh); margin-bottom: 0.6rem; }
+  .globe-head .eyebrow { margin-bottom: 0.8rem; }
+  .g-search { margin-top: 0.9rem; }
+  .globe-frame { min-height: 520px; }
+
+  /* Journey and country pages */
+  .tl-panel { top: 11svh; gap: 0.8rem; }
+  .tl-year { font-size: min(clamp(4.5rem, 2rem + 7vw, 8.5rem), 13svh); }
+  .cf-title { font-size: min(clamp(3.4rem, 1.5rem + 8vw, 9rem), 16svh); }
+  .cf-globe { width: min(100%, 30rem, 60svh); }
+  .cf-answer { font-size: var(--step-1); }
+  .facts { margin-top: var(--s-l); }
+  .page-top { padding-top: 6.5rem !important; }
+  .faq { margin-top: min(var(--s-3xl), 12svh); }
+}
+/* Very short (≤680px, e.g. 1080p laptops at 150%): drop the purely decorative extras */
+@media (min-width: 821px) and (max-height: 680px) {
+  .mrz > span + span, .live-note { display: none; }
+  .hero-eyebrow { display: none; }
+  .hero-copy { padding-top: 5rem; }
+}

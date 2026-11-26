@@ -203,9 +203,12 @@ html.motion .latest-media[data-reveal-media] { clip-path: inset(12% 10% 12% 10% 
 .tl-now { display: flex; align-items: flex-end; gap: var(--s-m); }
 .tl-year { position: relative; display: grid; flex: none; overflow: hidden; padding-right: 0.06em; font-size: clamp(4.5rem, 2rem + 7vw, 8.5rem); font-weight: 660; font-stretch: 125%; line-height: 0.82; letter-spacing: -0.04em; color: var(--ink); padding-top: 0.04em; }
 .tl-year > span { display: block; grid-area: 1 / 1; }
-.tl-meta { display: grid; gap: 0.25rem; padding-bottom: 0.4rem; }
-.tl-place { font-size: var(--step-2); font-weight: 600; font-stretch: 110%; line-height: 1.1; }
-.tl-coord { font-size: var(--step--1); color: var(--ink-2); letter-spacing: 0.04em; }
+.tl-meta { display: grid; gap: 0.25rem; padding-bottom: 0.4rem; flex: 1; min-width: 0; }
+/* Fixed two-line box, text sitting on its bottom edge: a longer name (or a mid-scramble wrap)
+   can never change the panel's height and nudge the map or the year. */
+.tl-place { display: flex; align-items: flex-end; height: 2.2em; overflow: hidden; font-size: var(--step-2); font-weight: 600; font-stretch: 110%; line-height: 1.1; }
+.tl-place > span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-wrap: balance; }
+.tl-coord { font-size: var(--step--1); color: var(--ink-2); letter-spacing: 0.04em; white-space: nowrap; }
 
 .tl-list { --p: 0; list-style: none; margin: 0; padding: 0 0 0 2.6rem; position: relative; }
 .tl-list::before, .tl-list::after { content: ''; position: absolute; left: 0.55rem; top: 0.5rem; width: 2px; border-radius: 2px; }

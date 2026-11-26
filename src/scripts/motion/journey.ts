@@ -97,8 +97,17 @@ export function initJourney() {
       gsap.fromTo(next, { yPercent: 100 * dirn }, { yPercent: 0, duration: 0.8, ease: EASE.out });
       if (old) gsap.to(old, { yPercent: -100 * dirn, duration: 0.8, ease: EASE.out, onComplete: () => old.remove() });
     }
-    gsap.to(placeEl, { duration: 0.7, scrambleText: { text: it.dataset.place || '', chars: 'upperCase', speed: 0.6, revealDelay: 0.1 } });
-    gsap.to(coordEl, { duration: 0.9, scrambleText: { text: it.dataset.coord || '', chars: '0123456789.°NSEW', speed: 0.8 } });
+    // tweenLength:false = the text is the new name's full length from the first frame, so it never
+    // reflows mid-shuffle; shuffling its own letters keeps the glyph widths (and line breaks) honest.
+    const place = it.dataset.place || '';
+    gsap.to(placeEl, {
+      duration: 0.7, overwrite: true,
+      scrambleText: { text: place, chars: place.replace(/[\s,]/g, '') || 'upperCase', speed: 0.6, revealDelay: 0.1, tweenLength: false },
+    });
+    gsap.to(coordEl, {
+      duration: 0.9, overwrite: true,
+      scrambleText: { text: it.dataset.coord || '', chars: '0123456789', speed: 0.8, tweenLength: false },
+    });
   };
 
   items.forEach((item, i) => {

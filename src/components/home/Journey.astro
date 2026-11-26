@@ -97,7 +97,7 @@ const pts = stops.map((s) => px(s.lon, s.lat));
         <div class="tl-now" aria-hidden="true">
           <span class="tl-year tnum" data-tl-year><span>{stops[0].year}</span></span>
           <span class="tl-meta">
-            <span class="tl-place" data-tl-place>{stops[0].place}</span>
+            <span class="tl-place"><span data-tl-place>{stops[0].place}</span></span>
             <span class="tl-coord mono" data-tl-coord>{coord(stops[0].lat, stops[0].lon)}</span>
           </span>
         </div>

@@ -1,0 +1,95 @@
+---
+import { allEpisodes, seriesList } from '../../lib/data';
+import { SITE, thumb, watch, fmtViews, calmTitle } from '../../lib/site';
+
+const top = [
+  { id: 'Cbrelu_Fb28', t: 'Japan bullet train: Tokyo to Osaka, how fast and how expensive?', m: 'Japan, 2019', v: '6.1M' },
+  { id: 'dKnIpwh8ysk', t: 'Indian in Lahore, Pakistan', m: 'Pakistan, 2024', v: '5.1M' },
+  { id: 'Wl7Q3nzR4Bc', t: 'Life in the northernmost town in the world', m: 'Svalbard, 2023', v: '4.1M' },
+  { id: 'Jt2U31XMdmI', t: 'My first day in Antarctica, the last continent', m: 'Antarctica, 2024', v: '3.8M' },
+  { id: 'k6uNiYDdoIc', t: 'Indian trying the street food of Lahore', m: 'Pakistan, 2024', v: '3.1M' },
+  { id: 'uFRD6SP87O4', t: 'Reached Pyongyang, North Korea: did they take my phone and camera?', m: 'North Korea, 2019', v: '2.8M' },
+  { id: 'Pt7fIL0uaEc', t: "Staying in a wood cabin in Alaska's jungle", m: 'Alaska, 2025', v: '2.1M' },
+  { id: 'p0L9ccDglM4', t: 'Driving the Atlantic Ocean Road', m: 'Norway, 2026', v: '1.3M' },
+];
+const edges = [
+  { id: 'uAlpkcdUVm0', t: 'Oymyakon, Russia', m: 'The coldest inhabited village on Earth, with a record low of −71.2°C', c: '63°28′N 142°47′E' },
+  { id: 'Wl7Q3nzR4Bc', t: 'Longyearbyen, Svalbard', m: 'The northernmost town in the world', c: '78°13′N 15°39′E' },
+  { id: 'c34vvgdTLZk', t: 'Nordkapp, Norway', m: "Europe's northernmost point, reached by campervan", c: '71°10′N 25°47′E' },
+  { id: 'uaAU5FYBTNo', t: 'Ilulissat, Greenland', m: 'Icebergs off the west coast', c: '69°13′N 51°06′W' },
+  { id: 'Jt2U31XMdmI', t: 'Antarctica', m: 'His seventh continent, by expedition ship', c: 'South of 60°S' },
+  { href: 'https://www.youtube.com/playlist?list=PLT3HO7F3oE4c9EuLtfIjEs_37hCuqpGue', id: 'f9qvGVhHIsU', t: 'Pitcairn Islands', m: 'One of the remotest inhabited islands', c: '25°04′S 130°06′W' },
+  { id: '9TklHPJZ0Q4', t: 'Rapa Nui', m: 'The island of the moai', c: '27°07′S 109°21′W' },
+  { id: 'bXxLoW7cJ58', t: 'Funafuti, Tuvalu', m: 'Often called the least-visited country', c: '8°31′S 179°12′E' },
+];
+
+// The reel: his most-watched frames, two rows moving in opposite directions.
+const reel = allEpisodes.filter((e) => e.views > 0).slice(0, 20);
+const rows = [reel.filter((_, i) => i % 2 === 0), reel.filter((_, i) => i % 2 === 1)];
+
+const regionNames: Record<string, string> = { asia: 'Asia', mideast: 'Middle East', europe: 'Europe', africa: 'Africa', americas: 'Americas', oceania: 'Oceania', polar: 'Polar and remote', guides: 'Guides' };
+const seriesGroups = Object.keys(regionNames)
+  .map((r) => ({ r, name: regionNames[r], items: seriesList.filter((s) => s.r === r) }))
+  .filter((g) => g.items.length);
+---
+
+<section class="navy watch" id="watch" aria-labelledby="watch-title">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">05</span><span class="rule"></span>The films <span lang="hi">· फ़िल्में</span></p>
+    <h2 id="watch-title" class="display" data-split>Press play anywhere on Earth</h2>
+  </div>
+
+  <div class="reel" data-reel aria-label="His most-watched episodes">
+    {rows.map((row, r) => (
+      <div class="reel-row" data-reel-row data-dir={r === 0 ? -1 : 1}>
+        <ul class="reel-track">
+          {row.map((e) => (
+            <li>
+              <a class="reel-item" href={watch(e.id)} target="_blank" rel="noopener" data-cursor="Watch">
+                <span class="thumb"><img src={thumb(e.id, 'hq')} alt="" width="480" height="360" loading="lazy" decoding="async" /></span>
+                <span class="reel-cap"><span class="reel-t">{calmTitle(e.title)}</span><span class="reel-v mono">{fmtViews(e.views)} · {e.place.name}</span></span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+
+  <div class="wrap">
+    <div class="watch-grid">
+      <div>
+        <h3>Crowd favourites</h3>
+        <ol class="top-list">
+          {top.map((v) => (
+            <li><a href={watch(v.id)} target="_blank" rel="noopener" data-preview={v.id}><span class="t">{v.t}</span><span class="m">{v.m}</span><span class="v">{v.v} views</span></a></li>
+          ))}
+        </ol>
+        <p class="source">YouTube view counts on {SITE.asOfLabel}.</p>
+      </div>
+      <div>
+        <h3>Where the map runs out</h3>
+        <ul class="edges">
+          {edges.map((v) => (
+            <li><a href={v.href ?? watch(v.id)} target="_blank" rel="noopener" data-preview={v.id}><span class="t">{v.t}</span><span class="m">{v.m}</span><span class="c" data-scramble>{v.c}</span></a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    <details class="series-index">
+      <summary>Browse all {seriesList.length} series</summary>
+      <div class="sidx">
+        {seriesGroups.map((g) => (
+          <section>
+            <h4>{g.name}</h4>
+            <ul>
+              {g.items.map((s) => (
+                <li><a href={s.u} target="_blank" rel="noopener"><span>{s.n}</span><span>{s.c} episodes</span></a></li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </details>
+  </div>
+</section>

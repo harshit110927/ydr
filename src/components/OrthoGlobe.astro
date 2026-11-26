@@ -1,0 +1,29 @@
+---
+import { orthoFor } from '../lib/ortho';
+interface Props { code: string; lon: number; lat: number; name: string }
+const { code, lon, lat, name } = Astro.props;
+const g = orthoFor(code, lon, lat);
+const id = `og-${code.toLowerCase()}`;
+---
+
+<svg viewBox={`0 0 ${g.size} ${g.size}`} role="img" aria-label={`Globe centred on ${name}, highlighted in red. Other countries he has filmed are shaded darker.`}>
+  <defs>
+    <radialGradient id={`${id}-shade`} cx="38%" cy="32%" r="75%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.55" />
+      <stop offset="60%" stop-color="#fff" stop-opacity="0" />
+      <stop offset="100%" stop-color="#15233c" stop-opacity="0.22" />
+    </radialGradient>
+  </defs>
+  <circle cx={g.cx} cy={g.cx} r={g.radius} fill="#dbe4e0" stroke="#15233c" stroke-opacity="0.35" />
+  <path d={g.graticule} fill="none" stroke="#15233c" stroke-opacity="0.09" stroke-width="0.7" />
+  <path class="og-land" d={g.other} fill="#15233c" fill-opacity="0.13" />
+  <path class="og-land" d={g.visited} fill="#15233c" fill-opacity="0.34" />
+  <path class="og-focus" d={g.focus} fill="#b02a2a" stroke="#b02a2a" stroke-width="1.2" stroke-linejoin="round" />
+  <circle cx={g.cx} cy={g.cx} r={g.radius} fill={`url(#${id}-shade)`} pointer-events="none" />
+  {g.pin && (
+    <g transform={`translate(${g.pin.x} ${g.pin.y})`}>
+      <circle class="og-ping" r="9" fill="#b02a2a" />
+      <circle class="og-pin" r="5.5" fill="#b02a2a" stroke="#e8eeeb" stroke-width="2.5" />
+    </g>
+  )}
+</svg>

@@ -1,0 +1,47 @@
+---
+import { SITE } from '../../lib/site';
+import { faqs } from '../../lib/faq';
+const kit = [
+  ['https://amzn.to/2A3fXyd', 'Primary camera'],
+  ['https://amzn.to/2GqFWVZ', 'Flip-screen zoom camera'],
+  ['https://amzn.to/2QAnEWV', 'Editing laptop'],
+  ['https://amzn.to/2QF3IT7', 'Selfie stick'],
+  ['https://amzn.to/2CgO5YT', '64 GB memory card'],
+  ['https://amzn.to/2Gt7Hgu', 'Big world map'],
+  ['https://amzn.to/2Gij3E1', 'Small world map'],
+  ['https://amzn.to/2UMGB7c', 'Magnetic board'],
+];
+---
+
+<section class="paper guilloche work" id="work" aria-labelledby="work-title">
+  <div class="wrap">
+    <div class="work-grid">
+      <div>
+        <p class="eyebrow"><span class="n">06</span><span class="rule"></span>Work with him <span lang="hi">· संपर्क</span></p>
+        <h2 id="work-title" class="display" data-split>Put your destination on his map</h2>
+        <p class="lede" data-fade>Tourism boards, brands and press can reach him at the business address on his YouTube channel and Instagram profile.</p>
+        <div class="work-actions" data-fade>
+          <a class="btn btn-ink" href={`mailto:${SITE.email}`} data-magnetic><span>Email {SITE.email}</span></a>
+          <a class="btn btn-line" href={SITE.instagram} target="_blank" rel="noopener" data-magnetic><span>Instagram @navankurchaudhary</span></a>
+        </div>
+      </div>
+      <div class="kit" data-fade>
+        <h3>What is in his bag</h3>
+        <p class="kit-note">Amazon affiliate links from his video descriptions.</p>
+        <ul>
+          {kit.map(([href, label]) => <li><a href={href} target="_blank" rel="noopener sponsored">{label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+
+    <div class="faq" id="faq">
+      <h2 data-split>Before you ask</h2>
+      {faqs.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <div class="faq-a"><p>{f.a}</p></div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>

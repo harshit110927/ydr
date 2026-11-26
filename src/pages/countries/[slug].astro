@@ -1,0 +1,174 @@
+---
+// One page per place he has filmed. Opens with a direct answer (for readers and answer
+// engines alike), then the facts, every trip and every episode, all from the dataset.
+import Base from '../../layouts/Base.astro';
+import OrthoGlobe from '../../components/OrthoGlobe.astro';
+import Stamp from '../../components/Stamp.astro';
+import { places, type Place } from '../../lib/data';
+import { SITE, COUNTS, fmtDay, fmtMonth, fmtMonthLong, fmtViews, fmtInt, thumb, watch, playlist, calmTitle } from '../../lib/site';
+import { graph, ids, breadcrumbs, placeNode, videoNode, abs } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return places.map((p, i) => ({ params: { slug: p.slug }, props: { place: p, prev: places[i - 1] ?? null, next: places[i + 1] ?? null } }));
+}
+
+interface Props { place: Place; prev: Place | null; next: Place | null }
+const { place: p, prev, next } = Astro.props;
+const site = Astro.site;
+const id = ids(site);
+const n = p.eps.length;
+const eps = (k: number) => `${k} episode${k === 1 ? '' : 's'}`;
+const trips = (k: number) => `${k} trip${k === 1 ? '' : 's'}`;
+const top = p.top;
+
+// The answer, phrased for the question people actually type.
+const kind = p.status === 'territory' ? 'territory' : p.status === 'continent' ? 'continent' : 'country';
+let answer: string;
+if (p.status === 'home') {
+  answer = `India is home. ${SITE.person} has filmed ${eps(n)} in India since he started the channel in ${fmtMonthLong(p.first)}, from visa guides to train journeys.`;
+} else if (p.status === 'continent') {
+  answer = `Yes. ${SITE.person} reached Antarctica, his seventh continent, in ${fmtMonthLong(p.first)} on a ten-day expedition cruise, and published ${eps(n)} from the trip.`;
+} else {
+  answer = `Yes. ${SITE.person} first filmed ${p.name} in ${fmtMonthLong(p.first)} and has published ${eps(n)} from ${trips(p.trips.length)} there.`;
+}
+const topLine = top ? `The most-watched is “${calmTitle(top.title)}”, with ${fmtViews(top.views)} views.` : '';
+
+const title = p.status === 'home' ? `Yatri Doctor in India: ${eps(n)} from home` : `Has Yatri Doctor been to ${p.name}? Yes, ${eps(n)}`;
+const description = `${answer} ${topLine}`.slice(0, 300).trim();
+const regionPeers = places.filter((q) => q.region === p.region && q.code !== p.code).sort((a, b) => a.first.localeCompare(b.first));
+const totalViews = p.eps.reduce((s, e) => s + e.views, 0);
+const pageUrl = abs(site, `/countries/${p.slug}/`);
+const inks = ['blue', 'red', 'violet', 'green'];
+const shapes = ['s-rect', 's-round', 's-oval'];
+const ink = inks[p.order % inks.length];
+const shape = shapes[p.order % shapes.length];
+const rot = ((p.order * 37) % 15) - 7;
+
+const jsonLd = graph(
+  {
+    '@type': 'WebPage',
+    '@id': `${pageUrl}#page`,
+    url: pageUrl,
+    name: title,
+    description,
+    inLanguage: SITE.lang,
+    isPartOf: { '@id': id.website },
+    about: [{ '@id': id.person }, placeNode(p)],
+    author: { '@id': id.person },
+    dateModified: SITE.asOf,
+    breadcrumb: { '@id': `${pageUrl}#breadcrumb` },
+    mainEntity: {
+      '@type': 'ItemList',
+      name: `${SITE.name} episodes filmed in ${p.name}`,
+      numberOfItems: n,
+      itemListOrder: 'https://schema.org/ItemListOrderAscending',
+      itemListElement: p.eps.map((e, i) => ({ '@type': 'ListItem', position: i + 1, item: videoNode({ id: e.id, title: e.title, date: e.date, views: e.views }, site, true) })),
+    },
+  },
+  { ...breadcrumbs(site, [['Home', '/'], ['Countries', '/countries/'], [p.name, `/countries/${p.slug}/`]]), '@id': `${pageUrl}#breadcrumb` },
+  { '@type': 'Person', '@id': id.person, name: SITE.person, alternateName: SITE.name, url: id.root },
+);
+---
+
+<Base title={title} description={description} ogImage={top ? thumb(top.id, 'hq') : '/og.jpg'} ogImageAlt={top ? calmTitle(top.title) : undefined} ogType="article" jsonLd={jsonLd}>
+  <article>
+    <section class="paper guilloche page-top">
+      <div class="wrap">
+        <nav aria-label="Breadcrumb">
+          <ol class="crumbs">
+            <li><a href="/">Home</a></li>
+            <li><a href="/countries/">Countries</a></li>
+            <li aria-current="page">{p.name}</li>
+          </ol>
+        </nav>
+        <div class="cf-hero">
+          <div>
+            <p class="eyebrow"><span class="n">No. {String(p.order).padStart(3, '0')}</span><span class="rule"></span>{kind} file · {p.region}</p>
+            <h1 class="cf-title" style={`view-transition-name: c-${p.code.toLowerCase()}`}>{p.name}</h1>
+            <p class="cf-answer"><strong>{answer.split('. ')[0]}.</strong> {answer.split('. ').slice(1).join('. ')} {topLine}</p>
+          </div>
+          <div class="cf-globe">
+            <OrthoGlobe code={p.code} lon={p.lon} lat={p.lat} name={p.name} />
+            <Stamp arr="Arrived" date={fmtDay(p.first)} place={p.name.length > 16 ? p.code : p.name} cls={`${shape} ink-${ink}`} style={`--r:${rot}deg`} />
+          </div>
+        </div>
+
+        <dl class="facts">
+          <div><dt>First filmed</dt><dd>{fmtMonth(p.first)}</dd></div>
+          <div><dt>Trips</dt><dd>{p.trips.length}</dd></div>
+          <div><dt>Episodes</dt><dd>{n}</dd></div>
+          {totalViews > 0 && <div><dt>Views, recorded</dt><dd>{fmtViews(totalViews)}</dd></div>}
+          <div><dt>Order</dt><dd>{p.order} of {places.length}</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="paper cf-body" aria-labelledby="eps-title">
+      <div class="wrap">
+        <h2 id="eps-title" class="sr-only">Episodes filmed in {p.name}</h2>
+        {[...p.trips].reverse().map((t, ti) => {
+          const tripEps = t.eps.slice().sort((a, b) => a.date.localeCompare(b.date));
+          const num = p.trips.length - ti;
+          return (
+            <section class="trip" aria-label={`Trip ${num}`}>
+              <header class="trip-head">
+                <h3>{p.trips.length > 1 ? `Trip ${num}: ` : ''}{t.from.slice(0, 7) === t.to.slice(0, 7) ? fmtMonth(t.from) : `${fmtMonth(t.from)} to ${fmtMonth(t.to)}`}</h3>
+                <p>
+                  {eps(tripEps.length)}
+                  {t.series && <> · <a href={playlist(t.series.id)} target="_blank" rel="noopener">{t.series.name} series</a></>}
+                </p>
+              </header>
+              {t.quote && (
+                <blockquote class="trip-quote">
+                  <p>“{t.quote.text}”</p>
+                  <footer>{SITE.person}, <a href={watch(t.quote.id)} target="_blank" rel="noopener">in the episode</a></footer>
+                </blockquote>
+              )}
+              <ol class="eps">
+                {tripEps.map((e) => (
+                  <li class="ep">
+                    <a href={watch(e.id)} target="_blank" rel="noopener" data-cursor="Watch">
+                      <span class="thumb">
+                        <img src={thumb(e.id, 'hq')} alt="" width="480" height="360" loading="lazy" decoding="async" />
+                        {top && e.id === top.id && <span class="badge">Most watched</span>}
+                      </span>
+                      <span class="ep-t">{calmTitle(e.title)}</span>
+                      <span class="ep-m"><time datetime={e.date}>{fmtDay(e.date)}</time>{e.views > 0 && ` · ${fmtInt(e.views)} views`}</span>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          );
+        })}
+
+        <div class="more">
+          {regionPeers.length > 0 && (
+            <section aria-labelledby="peers">
+              <p class="eyebrow" id="peers"><span class="n">{regionPeers.length}</span><span class="rule"></span>More from {p.region}</p>
+              <ul class="chips">
+                {regionPeers.map((q) => <li><a href={`/countries/${q.slug}/`}>{q.name} <span class="yr">{q.first.slice(0, 4)}</span></a></li>)}
+              </ul>
+            </section>
+          )}
+          <section aria-labelledby="where">
+            <p class="eyebrow" id="where"><span class="n">{COUNTS.hisCount}</span><span class="rule"></span>The whole map</p>
+            <p>{p.name} is one of {COUNTS.filmed} countries in his videos so far; by his own count he has been to {COUNTS.hisCount} of {COUNTS.total}.</p>
+            <p><a class="link-arrow" href={`/?country=${p.code}#globe`}>Find {p.name} on the live globe →</a></p>
+            <p><a class="link-arrow" href="/countries/">Browse every country →</a></p>
+          </section>
+        </div>
+
+        <nav class="pager" aria-label="Previous and next country, in the order he first filmed them">
+          {prev ? <a href={`/countries/${prev.slug}/`} rel="prev"><span class="k">← Previous stamp</span><span class="v">{prev.name}</span></a> : <span></span>}
+          {next ? <a href={`/countries/${next.slug}/`} rel="next"><span class="k">Next stamp →</span><span class="v">{next.name}</span></a> : <span></span>}
+        </nav>
+
+        <div class="cta-band">
+          <p>{COUNTS.toGo} countries to go. Follow the rest of the route, in Hindi.</p>
+          <a class="btn btn-gold" href={SITE.subscribe} target="_blank" rel="noopener" data-magnetic><span>Subscribe on YouTube <span class="arr">→</span></span></a>
+        </div>
+      </div>
+    </section>
+  </article>
+</Base>

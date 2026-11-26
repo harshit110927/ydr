@@ -1,0 +1,51 @@
+---
+import { SITE } from '../lib/site';
+interface Props { home?: boolean }
+const { home = false } = Astro.props;
+const h = (id: string) => (home ? `#${id}` : `/#${id}`);
+const links = [
+  { href: h('about'), label: 'About' },
+  { href: h('journey'), label: 'Journey' },
+  { href: h('globe'), label: 'Globe' },
+  { href: '/countries/', label: 'Countries' },
+  { href: h('course'), label: 'Course' },
+  { href: h('work'), label: 'Work with him' },
+];
+---
+
+<header class="nav" id="top" data-nav>
+  <a class="brand" href={home ? '#top' : '/'}>
+    <span class="brand-hi" lang="hi">{SITE.nameHi}</span>
+    <span class="brand-en">{SITE.name}</span>
+  </a>
+  <nav aria-label="Primary" class="nav-primary">
+    <ul class="nav-links">
+      {links.map((l) => <li><a href={l.href} data-nav-link>{l.label}</a></li>)}
+    </ul>
+  </nav>
+  <a class="btn btn-gold btn-sm nav-cta" href={SITE.subscribe} target="_blank" rel="noopener" data-magnetic><span>Subscribe</span></a>
+  <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-menu-btn>
+    <span class="sr-only">Menu</span>
+    <span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+  </button>
+  <div class="nav-progress" aria-hidden="true"><i></i></div>
+</header>
+
+<div class="menu" id="menu" hidden data-menu>
+  <nav aria-label="Menu">
+    <ol class="menu-links">
+      {links.map((l, i) => (
+        <li>
+          <a href={l.href} data-menu-link>
+            <span class="menu-n mono">{String(i + 1).padStart(2, '0')}</span>
+            <span class="menu-t">{l.label}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+  <div class="menu-foot">
+    <a class="btn btn-gold" href={SITE.subscribe} target="_blank" rel="noopener"><span>Subscribe on YouTube <span class="arr">→</span></span></a>
+    <p class="menu-mrz mono" aria-hidden="true">P&lt;INDCHAUDHARY&lt;&lt;NAVANKUR&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</p>
+  </div>
+</div>

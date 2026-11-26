@@ -1,0 +1,39 @@
+---
+import { SITE } from '../../lib/site';
+const c = SITE.course;
+---
+
+<section class="paper course" id="course" aria-labelledby="course-title">
+  <div class="wrap">
+    <p class="eyebrow"><span class="n">04</span><span class="rule"></span>The course <span lang="hi">· कोर्स</span></p>
+    <h2 id="course-title" class="display" data-split>400 flights, distilled into 34 minutes</h2>
+    <p class="lede" data-fade>His course shows how he finds free, cheap and discounted fares, earns rewards by booking flights and hotels for other people, and keeps a whole trip on budget.</p>
+
+    <div class="pass-slot" data-pass>
+      <article class="pass" aria-labelledby="pass-title">
+        <div class="pass-main">
+          <div class="pass-top">
+            <p class="pass-kind mono">Boarding pass · Online course</p>
+            <p class="pass-route mono" aria-hidden="true"><b>DEL</b><i></i><span>✈</span><i></i><b>ANY</b></p>
+          </div>
+          <h3 id="pass-title">{c.name}</h3>
+          <dl class="pass-grid">
+            <div><dt>Video lessons</dt><dd>{c.lessons} modules, {c.minutes} min</dd></div>
+            <div><dt>Bonus</dt><dd>{c.bonus}</dd></div>
+            <div><dt>Where</dt><dd>On Graphy, at your own pace</dd></div>
+            <div><dt>Rating</dt><dd>{c.rating}</dd></div>
+            <div><dt>Instructor</dt><dd>{SITE.person}</dd></div>
+            <div><dt>Built from</dt><dd>His 400+ international flights</dd></div>
+          </dl>
+        </div>
+        <div class="pass-stub">
+          <p class="pass-kind mono">Fare</p>
+          <p class="price"><span class="now-price">₹{c.price}</span> <s>₹{c.listPrice}</s></p>
+          <p class="price-note">Price on Graphy on {SITE.asOfLabel}</p>
+          <a class="btn btn-gold" href={c.url} target="_blank" rel="noopener" data-magnetic><span>Enroll on Graphy <span class="arr">→</span></span></a>
+          <div class="barcode" aria-hidden="true"><i class="scan"></i></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

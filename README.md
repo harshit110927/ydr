@@ -6,6 +6,10 @@
 
 `docs/STUDY.md` covers the research behind the rebuild: what the $20k studio tier buys, and a gap analysis of the original single-file page.
 
+![Hero: the live globe and the 0→177 counter](docs/screens/01-hero.jpg)
+
+More previews are in `docs/screens/`: the departures board, the route, the boarding pass, a country page and mobile.
+
 ## Stack
 
 | Layer | Choice | Why |

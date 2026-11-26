@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import Board from '../components/home/Board.astro';
+import About from '../components/home/About.astro';
+import Journey from '../components/home/Journey.astro';
+import GlobeSection from '../components/home/GlobeSection.astro';
+import Course from '../components/home/Course.astro';
+import Watch from '../components/home/Watch.astro';
+import Work from '../components/home/Work.astro';
+import { SITE, COUNTS } from '../lib/site';
+import { allEpisodes } from '../lib/data';
+import { graph, ids, personNode, websiteNode, courseNode, faqNode, videoNode, abs } from '../lib/schema';
+
+const site = Astro.site;
+const id = ids(site);
+const epById = new Map(allEpisodes.map((e) => [e.id, e]));
+// Most-watched episodes, with dates and view counts taken from the dataset (not retyped).
+const favourites = ['Cbrelu_Fb28', 'dKnIpwh8ysk', 'Wl7Q3nzR4Bc', 'Jt2U31XMdmI', 'k6uNiYDdoIc', 'uFRD6SP87O4']
+  .map((v) => epById.get(v))
+  .filter((e): e is NonNullable<typeof e> => !!e);
+
+const jsonLd = graph(
+  websiteNode(site),
+  {
+    '@type': 'ProfilePage',
+    '@id': id.profile,
+    url: id.root,
+    name: `${SITE.name}: ${SITE.person}`,
+    isPartOf: { '@id': id.website },
+    mainEntity: { '@id': id.person },
+    dateModified: SITE.asOf,
+    inLanguage: SITE.lang,
+    primaryImageOfPage: abs(site, '/og.jpg'),
+  },
+  personNode(site),
+  courseNode(site),
+  faqNode(site),
+  videoNode({ id: SITE.now.video, title: SITE.now.title, date: SITE.now.uploaded, description: `The latest episode of his Afghanistan series, country ${COUNTS.hisCount} by his count.` }, site),
+  {
+    '@type': 'ItemList',
+    name: 'Crowd favourites: his most-watched episodes',
+    itemListOrder: 'https://schema.org/ItemListOrderDescending',
+    itemListElement: favourites.map((v, i) => ({ '@type': 'ListItem', position: i + 1, item: videoNode(v, site) })),
+  },
+);
+---
+
+<Base
+  title={`Yatri Doctor: Navankur Chaudhary, ${COUNTS.hisCount} of ${COUNTS.total} countries`}
+  description={SITE.description}
+  ogTitle={`Yatri Doctor: ${COUNTS.hisCount} of ${COUNTS.total} countries, on an Indian passport`}
+  ogType="profile"
+  jsonLd={jsonLd}
+  home
+  bodyClass="home"
+>
+  <link slot="head" rel="preload" href="/img/globe-poster.webp" as="image" type="image/webp" fetchpriority="low" />
+  <Hero />
+  <Board />
+  <About />
+  <Journey />
+  <GlobeSection />
+  <Course />
+  <Watch />
+  <Work />
+</Base>

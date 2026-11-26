@@ -1,0 +1,32 @@
+---
+import { SITE, COUNTS } from '../../lib/site';
+const rows = [
+  { v: COUNTS.subscribers, cap: 'YouTube subscribers', code: 'SUB' },
+  { v: COUNTS.views, cap: 'views on YouTube', code: 'VWS' },
+  { v: String(COUNTS.videos), cap: 'videos published', code: 'VID' },
+  { v: COUNTS.instagram, cap: 'Instagram followers', code: 'IGM' },
+  { v: String(COUNTS.series), cap: 'series', code: 'SER' },
+  { v: COUNTS.flights, cap: 'international flights', code: 'FLT' },
+];
+---
+
+<section class="board" id="board" aria-labelledby="board-title">
+  <div class="wrap-wide">
+    <div class="board-head">
+      <h2 id="board-title" class="eyebrow"><span class="n">Departures</span><span class="rule"></span><span lang="hi">प्रस्थान</span></h2>
+      <p class="board-asof mono">Public counts · {SITE.asOfLabel}</p>
+    </div>
+    <ul class="board-rows">
+      {rows.map((r) => (
+        <li class="board-row">
+          <span class="board-code mono" aria-hidden="true">{r.code}</span>
+          <span class="sr-only">{r.v}</span>
+          <span class="flaps" data-flap={r.v} aria-hidden="true">
+            {[...r.v].map((c) => <span class="flap"><span>{c}</span></span>)}
+          </span>
+          <span class="board-cap">{r.cap}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

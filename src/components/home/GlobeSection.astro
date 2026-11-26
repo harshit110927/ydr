@@ -1,0 +1,72 @@
+---
+import { COUNTS } from '../../lib/site';
+import { placesByRegion } from '../../lib/data';
+const regions = placesByRegion.filter((g) => g.region !== 'Antarctica');
+---
+
+<section class="space globe" id="globe" aria-labelledby="globe-title">
+  <div class="globe-head wrap">
+    <p class="eyebrow"><span class="n">03</span><span class="rule"></span>The globe <span lang="hi">· दुनिया</span></p>
+    <h2 id="globe-title" data-split>Has he been to your country?</h2>
+    <p data-fade>Type a country or spin the planet. The <strong>{COUNTS.filmed}</strong> countries in his videos glow in true colour; the rest are dimmed. Select one to see when he went and what he filmed.</p>
+    <div class="g-search" data-fade>
+      <label for="country-search">Find a country</label>
+      <div class="g-search-row">
+        <input id="country-search" type="search" list="country-list" placeholder="Try Vanuatu" autocomplete="off" />
+        <span class="g-search-k mono" aria-hidden="true">↵</span>
+      </div>
+      <datalist id="country-list"></datalist>
+    </div>
+  </div>
+  <div class="globe-frame">
+    <div class="stage stage-globe" id="stage-globe" role="img" aria-label="Interactive globe of the countries Yatri Doctor has filmed. A text list follows below." data-cursor="Drag to spin"></div>
+    <div class="globe-ui">
+      <div class="g-count" aria-live="polite">
+        <p><strong>{COUNTS.hisCount}</strong> of {COUNTS.total} by his count</p>
+        <p><strong>{COUNTS.filmed}</strong> filmed and mapped here</p>
+      </div>
+      <fieldset class="g-toggles">
+        <legend class="sr-only">Globe options</legend>
+        <label><input type="checkbox" id="t-live" checked /> Live daylight</label>
+        <label><input type="checkbox" id="t-clouds" checked /> Clouds</label>
+        <label><input type="checkbox" id="t-spin" checked /> Spin</label>
+      </fieldset>
+      <ul class="g-legend">
+        <li><span class="sw sw-filmed"></span>Filmed, in true colour</li>
+        <li><span class="sw sw-home"></span>Home, India</li>
+        <li><span class="sw sw-terr"></span>Territory he filmed</li>
+        <li><span class="sw sw-none"></span>Not filmed yet, dimmed</li>
+      </ul>
+    </div>
+    <div class="g-tip" id="g-tip" hidden></div>
+    <aside class="g-panel" id="g-panel" hidden aria-live="polite" data-lenis-prevent>
+      <button class="g-close" id="g-close" type="button" aria-label="Close country details">Close</button>
+      <div id="g-panel-body"></div>
+    </aside>
+    <div class="g-fallback" id="g-fallback" hidden>
+      <img src="/img/globe-poster.webp" alt="The Earth from space, centred on India, with the countries he has filmed lit in gold" width="1200" height="1200" loading="lazy" decoding="async" />
+      <p>This device draws 3D graphics without a graphics chip, so here is a still. Every country is listed below, and each has its own page. <a href="?gl=force#globe">Start the 3D globe anyway</a></p>
+    </div>
+  </div>
+  <div class="wrap">
+    <details class="country-index" id="country-index-wrap">
+      <summary>All {COUNTS.filmed} countries in his videos, by region</summary>
+      <div class="cidx">
+        {regions.map((g) => (
+          <section>
+            <h3>{g.region} <span>({g.places.length})</span></h3>
+            <ul>
+              {g.places.map((p) => (
+                <li>
+                  <a href={`/countries/${p.slug}/`} data-code={p.code}>{p.name}</a>
+                  <span class="yr tnum">{p.first.slice(0, 4)}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </details>
+    <p class="map-note">Borders follow India's official map. Imagery: NASA Blue Marble and Black Marble. Country shapes: Natural Earth.</p>
+  </div>
+</section>

@@ -1,0 +1,12 @@
+---
+// A rubber-stamp entry mark. Shape and ink come from the parent's s-* / ink-* classes,
+// or can be set directly on the stamp with `cls`.
+interface Props { arr?: string; date: string; place: string; cls?: string; style?: string }
+const { arr = 'Arrived', date, place, cls = '', style } = Astro.props;
+---
+
+<span class={`mark ${cls}`} style={style} aria-hidden="true">
+  <span class="mk-arr">{arr}</span>
+  <span class="mk-date">{date}</span>
+  <span class="mk-place">{place}</span>
+</span>

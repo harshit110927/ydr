@@ -1,0 +1,35 @@
+---
+import { SITE, fmtDay, thumb, watch } from '../../lib/site';
+const n = SITE.now;
+---
+
+<section class="paper guilloche about" id="about" aria-labelledby="about-title">
+  <div class="wrap about-grid">
+    <div class="about-text">
+      <p class="eyebrow"><span class="n">01</span><span class="rule"></span>The doctor <span lang="hi">· परिचय</span></p>
+      <h2 id="about-title" class="display" data-split>He trained as a doctor. The road had other plans.</h2>
+      <div class="about-body" data-fade>
+        <p>Navankur Chaudhary trained as an MBBS doctor, then started a YouTube channel in September 2017 and called it Yatri Doctor (<span lang="hi">यात्री</span>, yatri, is Hindi for traveller). He now travels full time, filming in Hindi with English titles.</p>
+        <p>He goes where few Indian creators film: North Korea by train, the coldest village on Earth, Antarctica, the Pitcairn Islands. He does it all on an Indian passport, and he films the visa process too.</p>
+      </div>
+    </div>
+    <figure class="latest" id="latest" data-video={n.video} data-start={n.loopStart} data-end={n.loopEnd}>
+      <div class="latest-media" data-reveal-media data-cursor="Play">
+        <img class="latest-poster" src={thumb(n.video, 'sd')} srcset={`${thumb(n.video, 'sd')} 640w, ${thumb(n.video, 'maxres')} 1280w`} sizes="(max-width: 900px) 92vw, 44vw" data-fallback={thumb(n.video, 'hq')} alt={`Still from "${n.title}"`} width="640" height="480" loading="lazy" decoding="async" />
+        <div class="latest-player" id="latest-player"></div>
+        <a class="latest-fallback" href={watch(n.video)} target="_blank" rel="noopener">
+          <span class="play" aria-hidden="true"></span>
+          <span class="sr-only">Play the latest episode on YouTube</span>
+        </a>
+      </div>
+      <figcaption>
+        <p class="latest-kicker"><span class="pulse" aria-hidden="true"></span>Now filming in {n.place}</p>
+        <p class="latest-title"><a href={watch(n.video)} target="_blank" rel="noopener">{n.title}</a></p>
+        <div class="latest-row">
+          <span class="latest-meta">Uploaded {fmtDay(n.uploaded)}</span>
+          <button class="latest-sound" id="latest-sound" type="button" hidden aria-pressed="false">Turn sound on</button>
+        </div>
+      </figcaption>
+    </figure>
+  </div>
+</section>

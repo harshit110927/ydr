@@ -1,0 +1,34 @@
+{
+  "name": "yatri-doctor",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Yatri Doctor: 177 of 197 countries on an Indian passport. Static Astro site with GSAP motion and a live three.js globe.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "tsc --noEmit -p .",
+    "assets": "node scripts/gen-assets.mjs",
+    "poster": "node scripts/capture-poster.mjs",
+    "og": "node scripts/render-og.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.6",
+    "astro": "^7.4.13",
+    "d3-geo": "^3.1.2",
+    "gsap": "^3.15.1",
+    "lenis": "^1.3.28",
+    "three": "^0.187.0",
+    "topojson-client": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/d3-geo": "^3.1.1",
+    "@types/three": "^0.187.0",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-simplify": "^3.0.3",
+    "sharp": "^0.35.5",
+    "topojson-simplify": "^3.0.3",
+    "typescript": "^7.0.2"
+  }
+}

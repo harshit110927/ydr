@@ -1,0 +1,124 @@
+---
+import { geoInterpolate } from 'd3-geo';
+import dots from '../../data/dots.json';
+import Stamp from '../Stamp.astro';
+import { fmtDay } from '../../lib/site';
+
+type Stop = {
+  year: string; date: string; place: string; short: string; lat: number; lon: number;
+  shape: 'rect' | 'round' | 'oval'; ink: 'blue' | 'red' | 'violet' | 'green'; r: number;
+  title: string; text: string; href: string; cta: string; vid?: string;
+};
+
+const stops: Stop[] = [
+  { year: '2017', date: '2017-09-30', place: 'India', short: 'India', lat: 28.61, lon: 77.21, shape: 'rect', ink: 'blue', r: -5, title: 'Episode one, in Hindi', text: 'His first series cover Singapore, Malaysia, Nepal, Sri Lanka, the Maldives and Russia, with step-by-step visa guides.', href: 'https://www.youtube.com/playlist?list=PLT3HO7F3oE4dmCpfA8Ibfj_aqibq74Aba', cta: 'Watch an early series' },
+  { year: '2019', date: '2019-08-12', place: 'Pyongyang, North Korea', short: 'Pyongyang', lat: 39.04, lon: 125.76, shape: 'round', ink: 'red', r: 7, title: 'By train to Pyongyang', text: 'The North Korea series follows him from the visa office to the capital. The arrival episode has 2.8 million views.', href: 'https://www.youtube.com/watch?v=uFRD6SP87O4', cta: 'Watch the episode', vid: 'uFRD6SP87O4' },
+  { year: '2019', date: '2019-10-20', place: 'Tokyo, Japan', short: 'Tokyo', lat: 35.68, lon: 139.77, shape: 'oval', ink: 'violet', r: -3, title: 'Tokyo to Osaka, 6.1 million views', text: 'He timed and priced the bullet train. It is still the most-watched video on the channel.', href: 'https://www.youtube.com/watch?v=Cbrelu_Fb28', cta: 'Watch the episode', vid: 'Cbrelu_Fb28' },
+  { year: '2021', date: '2021-11-24', place: 'Oymyakon, Russia', short: 'Oymyakon', lat: 63.46, lon: 142.79, shape: 'round', ink: 'blue', r: -9, title: 'Minus 71.2°C in Oymyakon', text: 'He reaches the coldest inhabited village on Earth.', href: 'https://www.youtube.com/watch?v=uAlpkcdUVm0', cta: 'Watch the episode', vid: 'uAlpkcdUVm0' },
+  { year: '2023', date: '2023-09-06', place: 'Port Vila, Vanuatu', short: 'Port Vila', lat: -17.73, lon: 168.33, shape: 'rect', ink: 'green', r: 4, title: 'Country 100: Vanuatu', text: 'The hundredth country lands partway through a 25-episode run of Pacific islands.', href: 'https://www.youtube.com/watch?v=p9UeUazr5r0', cta: 'Watch the episode', vid: 'p9UeUazr5r0' },
+  { year: '2024', date: '2024-04-12', place: 'Antarctic Peninsula', short: 'Antarctica', lat: -64.6, lon: -62.2, shape: 'oval', ink: 'blue', r: 6, title: 'Continent seven: Antarctica', text: 'A ten-day expedition cruise to his last continent.', href: 'https://www.youtube.com/watch?v=Jt2U31XMdmI', cta: 'Watch the episode', vid: 'Jt2U31XMdmI' },
+  { year: '2024', date: '2024-10-25', place: 'Lahore, Pakistan', short: 'Lahore', lat: 31.59, lon: 74.31, shape: 'round', ink: 'green', r: -4, title: 'Indian in Lahore', text: 'His second most-watched video, at 5.1 million views.', href: 'https://www.youtube.com/watch?v=dKnIpwh8ysk', cta: 'Watch the episode', vid: 'dKnIpwh8ysk' },
+  { year: '2025', date: '2025-09-18', place: 'Santiago, Chile', short: 'Chile', lat: -33.45, lon: -70.67, shape: 'rect', ink: 'red', r: 8, title: 'Country 150, and a stolen phone', text: 'Number 150 arrives, and his phone is taken on day two.', href: 'https://www.youtube.com/watch?v=fB_fcjRPwWU', cta: 'Watch the episode', vid: 'fB_fcjRPwWU' },
+  { year: '2026', date: '2026-09-03', place: 'Lofoten, Norway', short: 'Lofoten', lat: 68.21, lon: 14.6, shape: 'round', ink: 'violet', r: -6, title: 'Campervan to the top of Europe', text: 'Twelve days through Lofoten and over the Arctic Circle to Nordkapp, at 71°10′21″ north.', href: 'https://www.youtube.com/playlist?list=PLQLddU9ryaq0', cta: 'Watch the series' },
+  { year: '2026', date: '2026-11-20', place: 'Kabul, Afghanistan', short: 'Kabul', lat: 34.56, lon: 69.21, shape: 'rect', ink: 'red', r: -2, title: 'Country 177: Afghanistan', text: 'The newest series opens with a flight from India to Kabul. Twenty countries to go.', href: 'https://www.youtube.com/watch?v=TnfUOHsMQm0', cta: 'Watch the episode', vid: 'TnfUOHsMQm0' },
+];
+
+// Projection shared with scripts/gen-assets.mjs
+const { W, H, LAT_TOP, LAT_BOT } = dots;
+const px = (lon: number, lat: number): [number, number] => [((lon + 180) / 360) * W, ((LAT_TOP - lat) / (LAT_TOP - LAT_BOT)) * H];
+const coord = (lat: number, lon: number) => `${Math.abs(lat).toFixed(2)}°${lat >= 0 ? 'N' : 'S'} ${Math.abs(lon).toFixed(2)}°${lon >= 0 ? 'E' : 'W'}`;
+
+// Great-circle legs between stops, split where they wrap past the map edge.
+const legs = stops.slice(1).map((b, i) => {
+  const a = stops[i];
+  const interp = geoInterpolate([a.lon, a.lat], [b.lon, b.lat]);
+  const N = 72;
+  const segs: string[] = [];
+  let d = '';
+  let prev: [number, number] | null = null;
+  for (let k = 0; k <= N; k++) {
+    const [lon, lat] = interp(k / N);
+    const p = px(lon, lat);
+    if (prev && Math.abs(p[0] - prev[0]) > W / 2) {
+      // crossing the antimeridian: finish at the edge, restart on the other side
+      const edgeOut = prev[0] < W / 2 ? 0 : W;
+      const edgeIn = W - edgeOut;
+      const yMid = (prev[1] + p[1]) / 2;
+      d += `L${edgeOut} ${yMid.toFixed(1)}`;
+      segs.push(d);
+      d = `M${edgeIn} ${yMid.toFixed(1)}`;
+    }
+    d += `${d ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`;
+    prev = p;
+  }
+  segs.push(d);
+  return segs;
+});
+const pts = stops.map((s) => px(s.lon, s.lat));
+---
+
+<section class="paper journey" id="journey" aria-labelledby="journey-title">
+  <div class="wrap">
+    <header class="sec-head">
+      <p class="eyebrow"><span class="n">02</span><span class="rule"></span>The route <span lang="hi">· सफ़र</span></p>
+      <h2 id="journey-title" class="display" data-split>Delhi to Kabul, the long way round</h2>
+      <p class="standfirst" data-fade>The two cities are about 1,000 km apart. He took nine years and 177 countries to get from one to the other.</p>
+    </header>
+
+    <div class="tl" data-journey>
+      <div class="tl-panel">
+        <figure class="route">
+          <svg class="route-map" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="World map tracing his route from Delhi through Pyongyang, Tokyo, Oymyakon, Port Vila, Antarctica, Lahore, Chile and Lofoten to Kabul. Countries he has filmed are printed darker.">
+            <g class="route-dots" fill="none" stroke-linecap="round" stroke-dasharray={`0 ${dots.pitch}`}>
+              <path d={dots.off} class="d-off" />
+              <path d={dots.on} class="d-on" />
+            </g>
+            <g class="route-ghost" fill="none">
+              {legs.flat().map((d) => <path d={d} />)}
+            </g>
+            <g class="route-legs" fill="none">
+              {legs.map((segs, i) => segs.map((d, j) => <path d={d} data-leg={i} data-seg={j} />))}
+            </g>
+            <g class="route-stops">
+              {pts.map(([x, y], i) => (
+                <g class="stop" data-stop={i} transform={`translate(${x.toFixed(1)} ${y.toFixed(1)})`}>
+                  <circle class="stop-halo" r="16" />
+                  <circle class="stop-dot" r="6.5" />
+                </g>
+              ))}
+            </g>
+            <g class="plane" data-plane transform={`translate(${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)})`}>
+              <g class="plane-rot">
+                <path d="M15 0 L-7 -3 L-11 -12 L-15 -12 L-12 -2.5 L-18 -2 L-21 -6 L-24 -6 L-22 0 L-24 6 L-21 6 L-18 2 L-12 2.5 L-15 12 L-11 12 L-7 3 Z" />
+              </g>
+            </g>
+          </svg>
+        </figure>
+        <div class="tl-now" aria-hidden="true">
+          <span class="tl-year tnum" data-tl-year><span>{stops[0].year}</span></span>
+          <span class="tl-meta">
+            <span class="tl-place" data-tl-place>{stops[0].place}</span>
+            <span class="tl-coord mono" data-tl-coord>{coord(stops[0].lat, stops[0].lon)}</span>
+          </span>
+        </div>
+      </div>
+
+      <ol class="tl-list" data-tl-list>
+        {stops.map((s, i) => (
+          <li class={`tl-item s-${s.shape} ink-${s.ink}`} style={`--r:${s.r}deg`} data-year={s.year} data-place={s.place} data-coord={coord(s.lat, s.lon)} data-i={i}>
+            <span class="tl-dot" aria-hidden="true"></span>
+            <a class="tl-card" href={s.href} target="_blank" rel="noopener" data-preview={s.vid}>
+              <Stamp arr="Arrived" date={fmtDay(s.date)} place={s.short} />
+              <span class="tl-body">
+                <span class="tl-when"><time datetime={s.date}>{fmtDay(s.date)}</time>, {s.place}</span>
+                <span class="tl-title">{s.title}</span>
+                <span class="tl-text">{s.text}</span>
+                <span class="tl-cta">{s.cta} <span aria-hidden="true">→</span></span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>

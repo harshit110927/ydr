@@ -1,0 +1,72 @@
+---
+import Base from '../../layouts/Base.astro';
+import { places, placesByRegion } from '../../lib/data';
+import { SITE, COUNTS, fmtMonth } from '../../lib/site';
+import { graph, ids, breadcrumbs, abs } from '../../lib/schema';
+
+const site = Astro.site;
+const id = ids(site);
+const url = abs(site, '/countries/');
+const title = `Every country Yatri Doctor has filmed (${COUNTS.filmed} of ${COUNTS.total})`;
+const description = `All ${places.length} countries, territories and continents in Navankur Chaudhary's Hindi travel videos, grouped by region, with when he first filmed each one and how many episodes he made there.`;
+
+const jsonLd = graph(
+  {
+    '@type': 'CollectionPage',
+    '@id': `${url}#page`,
+    url,
+    name: title,
+    description,
+    isPartOf: { '@id': id.website },
+    about: { '@id': id.person },
+    dateModified: SITE.asOf,
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: places.length,
+      itemListOrder: 'https://schema.org/ItemListOrderAscending',
+      itemListElement: places.map((p, i) => ({ '@type': 'ListItem', position: i + 1, name: p.name, url: abs(site, `/countries/${p.slug}/`) })),
+    },
+  },
+  breadcrumbs(site, [['Home', '/'], ['Countries', '/countries/']]),
+);
+---
+
+<Base title={title} description={description} jsonLd={jsonLd}>
+  <section class="paper guilloche page-top">
+    <div class="wrap">
+      <nav aria-label="Breadcrumb">
+        <ol class="crumbs"><li><a href="/">Home</a></li><li aria-current="page">Countries</li></ol>
+      </nav>
+      <p class="eyebrow"><span class="n">{COUNTS.filmed}</span><span class="rule"></span>Countries in his videos <span lang="hi">· देश</span></p>
+      <h1 class="display" data-split>Every stamp in the passport</h1>
+      <p class="standfirst" data-fade>
+        {COUNTS.filmed} countries appear in his published videos so far, plus {places.filter((p) => p.status === 'territory').length} territories and Antarctica. By his own count he has been to {COUNTS.hisCount} of {COUNTS.total}. Data as of {SITE.asOfLabel}.
+      </p>
+
+      <div class="ci-tools">
+        <label class="ci-search">
+          <span class="sr-only">Filter countries</span>
+          <input type="search" placeholder="Filter by country, region or year" autocomplete="off" data-ci-filter />
+        </label>
+        <span class="ci-count" data-ci-count aria-live="polite">{places.length} places</span>
+      </div>
+
+      {placesByRegion.map((g) => (
+        <section class="ci-region" data-ci-region aria-labelledby={`r-${g.region}`}>
+          <h2 id={`r-${g.region}`}>{g.region} <span>{g.places.length}</span></h2>
+          <ul class="ci-list">
+            {g.places.map((p) => (
+              <li data-ci-item={`${p.name} ${p.code} ${p.region} ${p.sub} ${p.first.slice(0, 4)}`.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')}>
+                <a href={`/countries/${p.slug}/`}>
+                  <span class="ci-name" style={`view-transition-name: c-${p.code.toLowerCase()}`}>{p.name}</span>
+                  <span class="ci-yr">{fmtMonth(p.first)}</span>
+                  <span class="ci-sub">{p.eps.length} episode{p.eps.length === 1 ? '' : 's'}{p.status === 'territory' ? ' · territory' : p.status === 'home' ? ' · home' : ''}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </section>
+</Base>

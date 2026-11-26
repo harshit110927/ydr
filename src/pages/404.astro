@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import Stamp from '../components/Stamp.astro';
+---
+
+<Base title="Page not found · Yatri Doctor" description="This page isn't on the map." noindex>
+  <section class="space nf">
+    <div class="wrap">
+      <p class="eyebrow"><span class="n">Error</span><span class="rule"></span>Entry refused</p>
+      <p class="nf-code" aria-hidden="true">404</p>
+      <h1 class="display" style="margin-top: 1rem">This page isn't on the map.</h1>
+      <p class="lede" style="color: var(--on-dark-2); margin-top: 1rem">It may have moved, or the link was mistyped. The globe and the full country list are still where they were.</p>
+      <div class="hero-actions">
+        <a class="btn btn-gold" href="/"><span>Back to the globe <span class="arr">→</span></span></a>
+        <a class="btn btn-ghost" href="/countries/"><span>All countries</span></a>
+      </div>
+    </div>
+    <Stamp arr="Denied" date="404" place="Not found" cls="s-oval" />
+  </section>
+</Base>
